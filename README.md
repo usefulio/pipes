@@ -10,21 +10,21 @@ Multiple pipelines can also be executed in sequence with the return value of one
 ```javascript
 // Creates a new pipe with three stages, before, action, and after
 // all the before hooks should run, then all of the action hooks, then all of the after hooks
-var myPipe = new Pipe(['before', 'action', 'after']);
+var myPipes = new Pipes(['before', 'action', 'after']);
 
 // Attaches a hook (which is just a function) to the before pipeline.
-myPipe.on('before', function (parameter) {
+myPipes.on('before', function (parameter) {
   return parameter + 1;
 });
 
 // Attaches a hook to the after pipeline
-myPipe.on('after', function (parameter) {
+myPipes.on('after', function (parameter) {
   return parameter + 1;
 });
 
 // Runs all of the hooks, in order, passing as data to the first hook the number 1
 // and as data to each subsequent hook the return value of the previous hook.
-var result = myPipe.do(['before','after'], 1);
+var result = myPipes.do(['before','after'], 1);
 
 // result === 3; 1 + 1 + 1
 ```
