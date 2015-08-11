@@ -11,29 +11,24 @@
  *  See the docs for Pipes.prototype.on on how to attach actions to pipelines. 
  */
 Pipes = function () {
-  var pipelines = _.flatten(_.toArray(arguments))
+  var stages = _.flatten(_.toArray(arguments))
 
-  var isEmpty = (pipelines.length < 1);
-  var pipelineNamesAreNotStrings = !! _.find(pipelines, function (pipeline) { return ! _.isString(pipeline); });
-  var pipelineNamesAreNotUnique = !! _.find(pipelines, function(pipeline, index, allPipelines) {
-    var nameCount = _.filter(allPipelines, function (stg) { return stg === pipeline; });
+  var isEmpty = (stages.length < 1);
+  var stageNamesAreNotStrings = !! _.find(stages, function (stage) { return ! _.isString(stage); });
+  var stageNamesAreNotUnique = !! _.find(stages, function(stage, index, allPipelines) {
+    var nameCount = _.filter(allPipelines, function (stg) { return stg === stage; });
     return nameCount.length != 1;
   });
 
-  if ( isEmpty && pipelineNamesAreNotStrings ) {
-    throw new Meteor.Error("invalid-arguments","pipelineNames argument does not exist or is not an Array");
-  } else if ( pipelineNamesAreNotUnique ) {
-    throw new Meteor.Error("duplicate-pipelinenames","pipelineNames must be unique");
+  if ( isEmpty && stageNamesAreNotStrings ) {
+    throw new Meteor.Error("invalid-arguments","stageNames argument does not exist or is not an Array");
+  } else if ( stageNamesAreNotUnique ) {
+    throw new Meteor.Error("duplicate-stagenames","stageNames must be unique");
   } else {
-    this.pipelines = pipelines;
+    this._stages = stages;
   }
 
   this.actions = {};
-
-  var __actions = this.actions;
-  _.each(pipelines, function(pipeline) {
-    __actions[pipeline] = [];
-  });
 };
 
 /**
@@ -44,7 +39,8 @@ Pipes = function () {
  * @param {function} action The new action. Each new action is added at the end of the pipeline i.e. will be executed last in the specific pipeline sequence.
  *
  */
- Pipes.prototype.on = function (pipelineName, action) {
+ Pipes.prototype.on = function (cueName, stageName, action) {
+  var self = this;
   if (_.isString(action)) {
     action = (function (action) {
       return function (options) {
@@ -53,10 +49,13 @@ Pipes = function () {
     })(action);
   }
 
-  if (! _.has(this.actions, pipelineName))
-    throw new Meteor.Error("invalid-pipelinename","pipelineName "+pipelineName+" is not defined");   
+  if (_.indexOf(self._stages, stageName) === -1)
+    throw new Meteor.Error("invalid-stagename","stageName "+stageName+" is not defined");   
 
-  this.actions[pipelineName].push(action);
+  var cue = self.actions[cueName] || {};
+  cue[stageName] = cue[stageName] || [];
+  cue[stageName].push(action);
+  self.actions[cueName] = cue;
 };
 
 /**
@@ -68,19 +67,18 @@ Pipes = function () {
  *
  * @returns {object...} result The return result of the last action in the sequence.
  */
-Pipes.prototype.do = function (pipelines, options) {
+Pipes.prototype.do = function (cueName, options) {
   var self = this;
 
-  if (_.isString(pipelines))
-    pipelines = [pipelines];
+  if (! _.isString(cueName))
+    throw new Meteor.Error('do-invalid-cueName','invalid cueName, should be a string');
 
-  if (pipelines && !_.isArray(pipelines))
-    throw new Meteor.Error('do-invalid-pipelines','invalid pipelines, should be an array or a string');
+  var _activeStages = _.filter(self._stages, function (stageName) {
+    return self.actions[cueName] && _.has(self.actions[cueName], stageName) 
+  });
 
-  _.each(pipelines, function (pipeline) {
-    if (!_.isString(pipeline))
-      throw new Error('invalid pipeline, should be a string');
-    var actions = self.actions[pipeline] || [];
+  _.each(_activeStages, function (stageName) {
+    var actions = self.actions[cueName][stageName] || [];
     _.each(actions, function (action) {
       var result = action.call(self, options);
       options = result;
