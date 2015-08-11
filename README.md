@@ -1,25 +1,30 @@
-# pipes
+# usefulio:pipes
 Compos-able processing pipelines
 
+## Introduction
+You can use Pipes to create _named_ pipelines of actions (functions) which are executed in sequence. The return value of each function (action) is passed as a parameter to the next function (action) in the sequence. The return value of a pipeline is the return value of the last action in the sequence. 
+
+Multiple pipelines can also be executed in sequence with the return value of one pipeline passed as a parameter to the next one.  
+
+## Usage
 ```javascript
 // Creates a new pipe with three stages, before, action, and after
 // all the before hooks should run, then all of the action hooks, then all of the after hooks
 var myPipe = new Pipe(['before', 'action', 'after']);
 
-// Attaches an action hook (which is just a function) to the default route.
-myPipe.on('default', 'action', function (message) {
-  console.log("This is the first action for the default route, message:", message);
-  return message;
+// Attaches a hook (which is just a function) to the before pipeline.
+myPipe.on('before', function (parameter) {
+  return parameter + 1;
 });
 
-// Attaches an after hook to the default route
-myPipe.on('default', 'after', function (message) {
-  console.log('sent', message) // should log the message after it has been run through the default action.
+// Attaches a hook to the after pipeline
+myPipe.on('after', function (parameter) {
+  return parameter + 1;
 });
 
-// Runs all of the hooks for the default route, in order, passing as data to the first hook
-// 'This is my message' and as data to each subsequent hook the return value of the previous
-// hook.
-myPipe.do('default', "This is my message");
+// Runs all of the hooks, in order, passing as data to the first hook the number 1
+// and as data to each subsequent hook the return value of the previous hook.
+var result = myPipe.do(['before','after'], 1);
 
+// result === 3; 1 + 1 + 1
 ```
