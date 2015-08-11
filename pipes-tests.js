@@ -7,7 +7,7 @@ Tinytest.add('Pipes instance with default stages created', function (test) {
   test.equal(myPipe._stages[2] === "stage3", true);
 });
 
-Tinytest.add('Multi-action cue with actions at multiple-stages created', function (test) {
+Tinytest.add('Multi-action pipe with actions at multiple-stages created', function (test) {
   var myPipe = new Pipes(["stage1","stage2","stage3"]);
 
   myPipe.on("default","stage1",function (options) {
@@ -31,7 +31,7 @@ Tinytest.add('Multi-action cue with actions at multiple-stages created', functio
   test.equal(typeof myPipe.actions["default"]["stage3"][0] === 'function', true);
 });
 
-Tinytest.add('Multi-action single-stage cue executes and returns correct result', function (test) {
+Tinytest.add('Multi-action single-stage pipe executes and returns correct result', function (test) {
   var myPipe = new Pipes("stage1");
 
   myPipe.on("default","stage1",function (options) {
@@ -50,7 +50,7 @@ Tinytest.add('Multi-action single-stage cue executes and returns correct result'
   test.equal(result === 'Mary had a little lamb', true);
 });
 
-Tinytest.add('Single-action multi-stage cue executes and returns correct result', function (test) {
+Tinytest.add('Single-action multi-stage pipe executes and returns correct result', function (test) {
   var myPipe = new Pipes("stage1","stage2","stage3");
 
   myPipe.on("default","stage3",function (options) {
@@ -69,7 +69,7 @@ Tinytest.add('Single-action multi-stage cue executes and returns correct result'
   test.equal(result === 'Mary had a little lamb', true);
 });
 
-Tinytest.add('Single-action multi-stage cue executes and returns correct result (empty stage)', function (test) {
+Tinytest.add('Single-action multi-stage pipe executes and returns correct result (empty stage)', function (test) {
   var myPipe = new Pipes("stage1","stage2","stage3");
 
   myPipe.on("default","stage3",function (options) {
@@ -84,7 +84,7 @@ Tinytest.add('Single-action multi-stage cue executes and returns correct result 
   test.equal(result === 'Mary had a little lamb', true);
 });
 
-Tinytest.add('Multi-action multi-stage multiple-cues executes and returns correct result (empty stage)', function (test) {
+Tinytest.add('Multi-action multi-stage multiple-pipes executes and returns correct result (empty stage)', function (test) {
   var myPipe = new Pipes("stage1","stage2","stage3");
 
   myPipe.on("default","stage3",function (options) {
@@ -105,53 +105,3 @@ Tinytest.add('Multi-action multi-stage multiple-cues executes and returns correc
   var result = myPipe.do("default","Mary");
   test.equal(result === 'Mary had a little lamb', true);
 });
-
-
-// Tinytest.add('Single-action is executed and returns result', function (test) {
-//   var myPipe = new Pipes("pipeline1");
-
-//   myPipe.on("pipeline1", function (options) {
-//     return options;
-//   });
-
-//   var result = myPipe.do("pipeline1", "this_is_my_option");
-
-//   test.equal(result === "this_is_my_option", true);
-// });
-
-// Tinytest.add('Multiple-actions are executed in single pipeline; options are passed from action to action', function (test) {
-//   var myPipe = new Pipes("pipeline1");
-
-//   myPipe.on("pipeline1", function (options) {
-//     return options+"is_";
-//   });
-
-//   myPipe.on("pipeline1", function (options) {
-//     return options+"my_option";
-//   });
-
-//   var result = myPipe.do("pipeline1", "this_");
-//   test.equal(result === "this_is_my_option", true);
-// });
-
-// Tinytest.add('Multiple-actions are executed in multiple pipelines and return results in correct order', function (test) {
-//   var myPipe = new Pipes(["pipeline1", "pipeline2"]);
-
-//   myPipe.on("pipeline1", function (options) {
-//     return options+"this_";
-//   });
-
-//   myPipe.on("pipeline1", function (options) {
-//     return options+"is_";
-//   });
-//   myPipe.on("pipeline2", function (options) {
-//     return options+"my_";
-//   });
-
-//   myPipe.on("pipeline2", function (options) {
-//     return options+"option";
-//   });
-
-//   var result = myPipe.do(["pipeline1", "pipeline2"], "");
-//   test.equal(result === "this_is_my_option", true);
-// });
