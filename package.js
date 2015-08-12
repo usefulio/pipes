@@ -12,7 +12,7 @@ Package.onUse(function(api) {
   api.use('underscore');
 
   api.addFiles('pipes.js','server');
-  api.export('Pipes');
+  api.export('Pipe');
 });
 
 Package.onTest(function(api) {
