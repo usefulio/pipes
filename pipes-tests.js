@@ -50,6 +50,73 @@ Tinytest.add('Multi-action single-stage pipe executes and returns correct result
   test.equal(result, 'Mary had a little lamb');
 });
 
+Tinytest.add('Multi-action (using an array) single-stage pipe executes and returns correct result', function (test) {
+  var myPipe = new Pipe("stage1");
+
+  myPipe.on("default","stage1",[
+    function (options) {
+      return options+" had";
+    }, 
+    function (options) {
+      return options+" a little";
+    },
+    function (options) {
+      return options+" lamb";
+    }
+  ]);
+
+  var result = myPipe.do("default","Mary");
+  test.equal(result, 'Mary had a little lamb');
+});
+
+Tinytest.add('Multi-action (using an array with mixed functions and alias) single-stage pipe executes and returns correct result', function (test) {
+  var myPipe = new Pipe("stage1");
+
+  myPipe.on("sub-pipe", "stage1", [
+    function (options) {
+      return options+" a little";
+    },
+    function (options) {
+      return options+" lamb";
+    }
+  ]);
+
+  myPipe.on("default","stage1",[
+    function (options) {
+      return options+" had";
+    }, 
+    "sub-pipe"
+  ]);
+
+  var result = myPipe.do("default","Mary");
+  test.equal(result, 'Mary had a little lamb');
+});
+
+Tinytest.add('Multi-action (using multiple arguments with mixed functions and alias) single-stage pipe executes and returns correct result', function (test) {
+  var myPipe = new Pipe("stage1");
+
+  myPipe.on("sub-pipe", "stage1",
+    function (options) {
+      return options+" a little";
+    },
+    function (options) {
+      return options+" lamb";
+    }
+  );
+
+  myPipe.on("default","stage1",
+    function (options) {
+      return options+" had";
+    }, 
+    "sub-pipe"
+  );
+
+  var result = myPipe.do("default","Mary");
+  test.equal(result, 'Mary had a little lamb');
+});
+
+
+
 Tinytest.add('Single-action multi-stage pipe executes and returns correct result', function (test) {
   var myPipe = new Pipe("stage1","stage2","stage3");
 
@@ -103,6 +170,46 @@ Tinytest.add('Multi-action multi-stage multiple-Pipes executes and returns corre
   });
 
   var result = myPipe.do("default","Mary");
+  test.equal(result, 'Mary had a little lamb');
+});
+
+// ###############################################################
+// ###############################################################
+// ## Pipes as aliases
+// ###############################################################
+// ###############################################################
+
+Tinytest.add('Using a pipe as an alias for action(s) in other pipes executes and returns correct result.', function (test) {
+  var myPipe = new Pipe("stage1");
+
+  myPipe.on("sub-pipe","stage1",function (options) {
+    return options+" little";
+  });
+
+  myPipe.on("sub-pipe","stage1",function (options) {
+    return options+" lamb";
+  });
+
+  myPipe.on("default","stage1","sub-pipe");
+
+  var result = myPipe.do("default","Mary had a");
+  test.equal(result, 'Mary had a little lamb');
+});
+
+Tinytest.add('Add an array of actions in other pipes executes and returns correct result.', function (test) {
+  var myPipe = new Pipe("stage1");
+
+  myPipe.on("sub-pipe","stage1",function (options) {
+    return options+" little";
+  });
+
+  myPipe.on("sub-pipe","stage1",function (options) {
+    return options+" lamb";
+  });
+
+  myPipe.on("default","stage1","sub-pipe");
+
+  var result = myPipe.do("default","Mary had a");
   test.equal(result, 'Mary had a little lamb');
 });
 

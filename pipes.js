@@ -49,15 +49,29 @@ Pipe = function () {
  * specific stage sequence for the specified pipe.
  *
  */
- Pipe.prototype.on = function (pipeName, stageName, action) {
+ Pipe.prototype.on = function (pipeName, stageName) { 
   var self = this;
+  var action = _.flatten(_.toArray(arguments)).slice(2);
 
   if (_.indexOf(self._stages, stageName) === -1)
     throw new Meteor.Error("invalid-stagename","stageName "+stageName+" is not defined");   
 
   var cue = self.actions[pipeName] || {};
   cue[stageName] = cue[stageName] || [];
-  cue[stageName].push(action);
+
+  _.each(action, function (singleAction) {
+    if (_.isString(singleAction)) {
+      singleAction = (function (singleAction) {
+        return function (options) { return self.do(singleAction, options); };
+      })(singleAction);
+      cue[stageName].push(singleAction);
+    } else if (_.isFunction(singleAction)) {
+      cue[stageName].push(singleAction);        
+    } else {
+      throw new Meteor.Error("invalid-action","action is not a string or a function");   
+    }
+  });
+
   self.actions[pipeName] = cue;
 };
 
