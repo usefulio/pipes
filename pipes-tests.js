@@ -113,46 +113,21 @@ Tinytest.add('Multi-action multi-stage multiple-Pipes executes and returns corre
 // ###############################################################
 
 Tinytest.add('Errors - Pipe instance with non unique stage names throws error', function (test) {
-  var errorThrown = false;
-  try {
-    var myPipe = new Pipe("stage1", "stage1", "stage3");
-  } catch (err) {
-    errorThrown = err;
-  }
-
-  test.equal(errorThrown.error, "duplicate-stagenames");
+  test.throws(function () { var myPipe = new Pipe("stage1", "stage1", "stage3"); }, /\[duplicate-stagenames\]/)
 });
 
 Tinytest.add('Errors - Pipe instance with invalid or non-existent stage names throws error', function (test) {
-  var errorThrown = false;
-  try {
-    var myPipe = new Pipe();
-  } catch (err) {
-    errorThrown = err;
-  }
-  test.equal(errorThrown.error, "invalid-arguments");
-
-  errorThrown = false;
-  try {
-    var myPipe = new Pipe("stage1", 123);
-  } catch (err) {
-    errorThrown = err;
-  }
-  test.equal(errorThrown.error, "invalid-arguments");
+  test.throws(function () { var myPipe = new Pipe(); }, /\[invalid-arguments\]/)
+  test.throws(function () { var myPipe = new Pipe("stage1", 1234); }, /\[invalid-arguments\]/)
 });
 
 Tinytest.add('Errors - undefined stage name when an action is assigned throws error', function (test) {
   var errorThrown = false;
   var myPipe = new Pipe("stage1");
-  try {
+  test.throws(function () {     
     myPipe.on("default","stage2",function (options) {
       return options;
-    });
-  } catch (err) {
-    errorThrown = err;
-  }
-
-  test.equal(errorThrown.error, "invalid-stagename");
+    }); }, /\[invalid-stagename\]/)
 });
 
 Tinytest.add('Errors - undefined pipe name when a pipe is executed throws error', function (test) {
@@ -161,19 +136,7 @@ Tinytest.add('Errors - undefined pipe name when a pipe is executed throws error'
   myPipe.on("default","stage1",function (options) {
     return options;
   });
-  
-  try {
-    myPipe.do("otherPipe","random option");
-  } catch (err) {
-    errorThrown = err;
-  }
-  test.equal(errorThrown.error, "invalid-pipename");
 
-  try {
-    myPipe.do(123,"random option");
-  } catch (err) {
-    errorThrown = err;
-  }
-  test.equal(errorThrown.error, "invalid-pipename");
-
+  test.throws(function () { myPipe.do("otherPipe","random option"); }, /\[invalid-pipename\]/)
+  test.throws(function () { myPipe.do(123,"random option"); }, /\[invalid-pipename\]/)
 });
