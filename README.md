@@ -11,23 +11,23 @@ Stage-grouped actions are executed in sequence with the return value of one stag
 ```javascript
 // Creates a new pipe with three stages, before, action, and after. These are executed in the order they 
 // appear in the array.
-// For a given Pipe (in this example the pipe named'default' specified during the myPipes.on method calls) 
+// For a given Pipe (in this example the pipe named'default' specified during the myPipe.on method calls) 
 // all the before hooks run first, then all of the action hooks, then all of the after hooks
-var myPipes = new Pipes(['before', 'action', 'after']);
+var myPipe = new Pipe(['before', 'action', 'after']);
 
 // Attaches a hook (which is just a function) to the 'before' stage of 'default' pipe.
-myPipes.on('default','before', function (parameter) {
+myPipe.on('default','before', function (parameter) {
   return parameter + 1;
 });
 
 // Attaches a hook to the after stage
-myPipes.on('default','after', function (parameter) {
+myPipe.on('default','after', function (parameter) {
   return parameter + 1;
 });
 
 // Runs all of the hooks, in order, passing as data to the first hook the number 1
 // and as data to each subsequent hook the return value of the previous hook.
-var result = myPipes.do('default', 1);
+var result = myPipe.do('default', 1);
 
 // result === 3; 1 (original) + 1 (hook 1) + 1 (hook 2)
 ```
