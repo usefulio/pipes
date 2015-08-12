@@ -92,15 +92,21 @@ Tinytest.add('Multi-action (using an array with mixed functions and alias) singl
   test.equal(result, 'Mary had a little lamb');
 });
 
-Tinytest.add('Multi-action (using multiple arguments with mixed functions and alias) single-stage pipe executes and returns correct result', function (test) {
-  var myPipe = new Pipe("stage1");
+Tinytest.add('Multi-action (using multiple arguments with mixed functions and aliases) single-stage pipe executes and returns correct result', function (test) {
+  var myPipe = new Pipe("stage1", "stage2", "stage3");
+
+  myPipe.on("sub-pipe", "stage2",
+    function (options) {
+      return options+"le";
+    }
+  );
 
   myPipe.on("sub-pipe", "stage1",
     function (options) {
-      return options+" a little";
+      return options+" a";
     },
     function (options) {
-      return options+" lamb";
+      return options+" litt";
     }
   );
 
@@ -111,10 +117,38 @@ Tinytest.add('Multi-action (using multiple arguments with mixed functions and al
     "sub-pipe"
   );
 
+  myPipe.on("default","stage2",
+    function (options) {
+      return options+" lamb";
+    }
+  );
+
   var result = myPipe.do("default","Mary");
   test.equal(result, 'Mary had a little lamb');
 });
 
+Tinytest.add('Stage value of `.on` method superseeds the stage values of aliases', function (test) {
+  var myPipe = new Pipe("stage1", "stage2");
+
+  myPipe.on("sub-pipe", "stage1",
+    function (options) {
+      return options+" a little";
+    },
+    function (options) {
+      return options+" lamb";
+    }
+  );
+
+  myPipe.on("default","stage2",
+    function (options) {
+      return options+" had";
+    }, 
+    "sub-pipe"
+  );
+
+  var result = myPipe.do("default","Mary");
+  test.equal(result, 'Mary had a little lamb');
+});
 
 
 Tinytest.add('Single-action multi-stage pipe executes and returns correct result', function (test) {

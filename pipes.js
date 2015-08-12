@@ -45,9 +45,10 @@ Pipe = function () {
  * @method  Pipe.prototype.on
  * @param {string} pipeName The name of the pipe
  * @param {string} stageName The name of the stage. This affects the order of execution. See docs on Pipe constructor for more.  
- * @param {function} action The new action. Each new action is added at the end of the stage i.e. will be executed last in the 
- * specific stage sequence for the specified pipe.
- *
+ * @param {function, array or string} action The new action.  
+ *  (function) Each new action is added at the end of the stage i.e. will be executed last in the specific stage sequence for the specified pipe. 
+ *  (string) A string wih the name of an existing named pipe can also be passed as an action, allowing the combination of several pipes like moduels into aggregate pipes 
+ *  (array) An array of functions (actions), strings (pipe names) or any combination of the two. The actions will be executed in the same order that they appear in the array.  
  */
  Pipe.prototype.on = function (pipeName, stageName) { 
   var self = this;
